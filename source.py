@@ -8,7 +8,7 @@ import numpy as np
 face_classifier=cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 emotion_model = load_model('model.h5')
 #age_model = load_model('age_model_50epochs.h5')
-#gender_model = load_model('gender_model_50epochs.h5')
+gender_model = load_model('Resources/gender_model_50epochs.h5')
 
 class_labels=['Angry','Disgust', 'Fear', 'Happy','Neutral','Sad','Surprise']
 gender_labels = ['Male', 'Female']
@@ -38,13 +38,13 @@ while True:
         cv2.putText(frame,label,label_position,cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
         
         #Gender
-        #roi_color=frame[y:y+h,x:x+w]
-       # roi_color=cv2.resize(roi_color,(200,200),interpolation=cv2.INTER_AREA)
-       # gender_predict = gender_model.predict(np.array(roi_color).reshape(-1,200,200,3))
-       # gender_predict = (gender_predict>= 0.5).astype(int)[:,0]
-        #gender_label=gender_labels[gender_predict[0]] 
-        #gender_label_position=(x,y+h+50) #50 pixels below to move the label outside the face
-        #cv2.putText(frame,gender_label,gender_label_position,cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+        roi_color=frame[y:y+h,x:x+w]
+        roi_color=cv2.resize(roi_color,(200,200),interpolation=cv2.INTER_AREA)
+        gender_predict = gender_model.predict(np.array(roi_color).reshape(-1,200,200,3))
+        gender_predict = (gender_predict>= 0.5).astype(int)[:,0]
+        gender_label=gender_labels[gender_predict[0]] 
+        gender_label_position=(x,y+h+50) #50 pixels below to move the label outside the face
+        cv2.putText(frame,gender_label,gender_label_position,cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
         
         #Age
         #age_predict = age_model.predict(np.array(roi_color).reshape(-1,200,200,3))
