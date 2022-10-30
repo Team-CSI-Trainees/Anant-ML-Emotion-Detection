@@ -4,10 +4,12 @@ from keras_preprocessing.image import img_to_array
 from keras_preprocessing import image
 import cv2
 import numpy as np
+from mtcnn.mtcnn import MTCNN
+from deepface import DeepFace
 
-face_classifier=cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-emotion_model = load_model('model.h5')
-#age_model = load_model('age_model_50epochs.h5')
+face_classifier=cv2.CascadeClassifier('Resources/haarcascade_frontalface_default.xml')
+emotion_model = load_model('Resources/model.h5')
+
 gender_model = load_model('Resources/gender_model_50epochs.h5')
 
 class_labels=['Angry','Disgust', 'Fear', 'Happy','Neutral','Sad','Surprise']
@@ -17,8 +19,11 @@ cap=cv2.VideoCapture(0)
 
 while True:
     ret,frame=cap.read()
+    result = DeepFace.analyze(frame, actions=["age"])
+    print(result)
     labels=[]
-    
+    detector = MTCNN()
+    faces = detector.detect_faces(frame) 
     gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
     faces=face_classifier.detectMultiScale(gray,1.3,5)
 
@@ -47,13 +52,12 @@ while True:
         cv2.putText(frame,gender_label,gender_label_position,cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
         
         #Age
-        #age_predict = age_model.predict(np.array(roi_color).reshape(-1,200,200,3))
-        #age = round(age_predict[0,0])
-        #age_label_position=(x+h,y+h)
-        #cv2.putText(frame,"Age="+str(age),age_label_position,cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+        
+       
+        cv2.putText(frame, str(result['age']),(x-25, y-25) ,cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2 , cv2.LINE_AA)
     
    
-    cv2.imshow('Emotion Detector', frame)
+    cv2.imshow('Emotion,Gender and Age Detector', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 cap.release()
